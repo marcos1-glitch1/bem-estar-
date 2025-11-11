@@ -1,6 +1,50 @@
 import React, { useState } from 'react';
 import type { User } from '../types';
 
+// Define props for the component
+interface PasswordInputProps {
+  id: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  showPassword: boolean;
+  onToggleVisibility: () => void;
+}
+
+// Move the component outside of AuthPage to prevent re-rendering issues
+const PasswordInput: React.FC<PasswordInputProps> = ({ id, value, onChange, placeholder, showPassword, onToggleVisibility }) => (
+    <div className="relative">
+      <input
+        id={id}
+        type={showPassword ? 'text' : 'password'}
+        value={value}
+        onChange={onChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary"
+        placeholder={placeholder}
+      />
+      <button
+        type="button"
+        onClick={onToggleVisibility}
+        className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-brand-primary"
+        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+      >
+        {showPassword ? (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-.858.11-1.687.316-2.481M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c1.274 0 2.502.213 3.654.61M21 12c-1.274 4.057-5.064 7-9.488 7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.98 3.98l16.04 16.04" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        )}
+      </button>
+    </div>
+);
+
+
 interface AuthPageProps {
   onLoginSuccess: (user: User) => void;
 }
@@ -13,6 +57,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Estado separado para o segundo campo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,44 +108,18 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
         email, 
         password // ATENÇÃO: Armazenando senha em texto plano, apenas para demo.
       };
-      const updatedUsers = [...storedUsers, newUser];
-      localStorage.setItem('wellness-app-users', JSON.stringify(updatedUsers));
-      onLoginSuccess(newUser);
+      
+      try {
+        const updatedUsers = [...storedUsers, newUser];
+        localStorage.setItem('wellness-app-users', JSON.stringify(updatedUsers));
+        onLoginSuccess(newUser);
+      } catch (storageError) {
+          console.error("Erro ao salvar usuário no localStorage:", storageError);
+          setError("Não foi possível salvar a conta. O armazenamento do navegador pode estar cheio.");
+      }
     }
   };
   
-  const PasswordInput: React.FC<{id: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder: string}> = ({ id, value, onChange, placeholder }) => (
-    <div className="relative">
-      <input
-        id={id}
-        type={showPassword ? 'text' : 'password'}
-        value={value}
-        onChange={onChange}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary"
-        placeholder={placeholder}
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-        className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-brand-primary"
-        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-      >
-        {showPassword ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-.858.11-1.687.316-2.481M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c1.274 0 2.502.213 3.654.61M21 12c-1.274 4.057-5.064 7-9.488 7" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.98 3.98l16.04 16.04" />
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        )}
-      </button>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-brand-light flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-8">
@@ -148,6 +167,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
+                showPassword={showPassword}
+                onToggleVisibility={() => setShowPassword(!showPassword)}
             />
           </div>
           {!isLogin && (
@@ -160,6 +181,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="********"
+                showPassword={showConfirmPassword}
+                onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
               />
             </div>
           )}

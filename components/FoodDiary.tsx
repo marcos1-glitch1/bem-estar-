@@ -88,9 +88,9 @@ export const FoodDiary: React.FC<FoodDiaryProps> = ({ user }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Ex: 100g de frango grelhado"
-            className="p-2 border border-gray-300 rounded-md md:col-span-2 focus:ring-2 focus:ring-brand-primary focus:border-transparent transition"
+            className="p-2 bg-white text-brand-dark placeholder-gray-500 border border-gray-300 rounded-md md:col-span-2 focus:ring-2 focus:ring-brand-primary focus:border-transparent transition"
           />
-          <select value={selectedMeal} onChange={(e) => setSelectedMeal(e.target.value as MealType)} className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-primary focus:border-transparent transition">
+          <select value={selectedMeal} onChange={(e) => setSelectedMeal(e.target.value as MealType)} className="p-2 bg-white text-brand-dark border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-primary focus:border-transparent transition">
             <option value="breakfast">Café da Manhã</option>
             <option value="lunch">Almoço</option>
             <option value="dinner">Jantar</option>
